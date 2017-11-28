@@ -1,5 +1,6 @@
 import flask
 from pymongo import MongoClient
+import os
 
 client = MongoClient()
 db = client.hokieSports
@@ -29,7 +30,6 @@ app = flask.Flask(__name__)
 @app.route('/')
 def homepage():
     return flask.render_template('main.html', test='test')
-    
 
 @app.route('/checkin', methods=['GET'])
 def checkIn():
@@ -64,6 +64,10 @@ def handleNewMemberData():
     pidNumber = flask.request.form['pidNumber']
     email = flask.request.form['email']
     teamName = flask.request.form['teamName']
+    f = flask.request.files['myPhoto']
+    filename = 'test.jpg'
+    f.save(os.path.join('./test.jpg'))
+    return flask.redirect('http://localhost:5000/')
     #add to database
 
 if(__name__) == "__main__":

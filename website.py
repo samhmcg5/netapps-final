@@ -9,6 +9,12 @@ users = db.users
 
 app = flask.Flask(__name__)
 
+# def addGame():
+#     for team in teams.find():
+#         gameData = dict()
+#         gameData['location'] = 'Field 1'
+#         team['schedule'] = gameData
+
 '''
 {
     "name": "Bennett White",
@@ -45,7 +51,7 @@ def newMember():
 
 @app.route('/newTeam')
 def newTeam():
-    sports = ['Soccer', 'Volleyball']
+    sports = ['Soccer', 'Football']
     return flask.render_template('newTeam.html', sports=sports)
 
 @app.route('/handleCheckInData', methods=['POST'])
@@ -66,6 +72,7 @@ def handleNewTeamData():
     data['teamName'] = teamName
     data['teamCaptain'] = teamCaptain
     data['sport'] = sport
+    data['schedule'] = dict()
     print(data)
     teams.insert_one(data)
     return flask.redirect('http://localhost:5000/newTeam')
@@ -83,6 +90,12 @@ def handleNewMemberData():
     f.save(os.path.join('./test.jpg'))
     return flask.redirect('http://localhost:5000/')
     #add to database
+
+@app.route('/getInfo', methods=['GET'])
+def getInfo():
+    #returns dictionary including photo encoding
+    # as well as other necessary info
+    return 'info'
 
 if(__name__) == "__main__":
     app.run(host='localhost', debug=True)

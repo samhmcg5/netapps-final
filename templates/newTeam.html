@@ -9,13 +9,14 @@
             Team Name: <input type='text' name='teamName'><br>
             Team Captain: <input type='text' name='teamCaptain'><br>
             Sport: <select name='sport'>
-                <option value='outdoorSoccer'>Outdoor Soccer</option>
-                <option value='volleyball'>Volleyball</option>
-            </select><br>
+                {% for i in sports %}
+                    <option value='{{ i }}'>{{ i }}</option>
+                {% endfor %}
+            </select><br><br><!-- we can come back to this if we want
             Competition Level: <select name='level'>
                 <option value='beginner'>Beginner</option>
                 <option value='advanced'>Advanced</option>
-            </select><br>
+            </select><br> -->
             <input type='submit' value='Submit'>
         </form><br>
         <a href='http://localhost:5000/'>

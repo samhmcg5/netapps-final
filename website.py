@@ -4,6 +4,7 @@ import os
 
 client = MongoClient()
 db = client.hokieSports
+teams = db.teams
 users = db.users
 
 app = flask.Flask(__name__)
@@ -37,11 +38,15 @@ def checkIn():
 
 @app.route('/newMember')
 def newMember():
-    return flask.render_template('newMember.html')
+    teamArr = []
+    for team in teams.find():
+        teamArr.append(str(team['teamName'] + ' - ' + team['sport']))
+    return flask.render_template('newMember.html', teams=teamArr)
 
 @app.route('/newTeam')
 def newTeam():
-    return flask.render_template('newTeam.html')
+    sports = ['Soccer', 'Volleyball']
+    return flask.render_template('newTeam.html', sports=sports)
 
 @app.route('/handleCheckInData', methods=['POST'])
 def handleCheckInData():
@@ -54,8 +59,17 @@ def handleCheckInData():
 def handleNewTeamData():
     teamName = flask.request.form['teamName']
     teamCaptain = flask.request.form['teamCaptain']
+    if teamName == '' or teamCaptain == '':
+        return 'Error - fill in all data forms'
     sport = flask.request.form['sport']
-    level = flask.request.form['level']
+    data = dict()
+    data['teamName'] = teamName
+    data['teamCaptain'] = teamCaptain
+    data['sport'] = sport
+    print(data)
+    teams.insert_one(data)
+    return flask.redirect('http://localhost:5000/newTeam')
+    #level = flask.request.form['level']
     #add to database
 
 @app.route('/handleNewMemberData', methods=['POST'])

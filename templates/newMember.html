@@ -9,7 +9,11 @@
             Name: <input type='text' name='playerName'><br>
             PID Number: <input type='text' name='pidNumber'><br>
             Email address: <input type='text' name='email'><br>
-            Team Name: <input type='text' name='teamName'><br> <!-- use list of -->
+            Team: <select name='teamName'>
+                {% for i in teams %}
+                    <option value='{{ i }}'>{{ i }}</option>
+                {% endfor %}<!-- use list of -->
+            </select><br>
             Payment Option: <select name='payment'>
                 <option value='payNow'>Pay Now</option>
                 <option value='payLater'>Pay Later</option>

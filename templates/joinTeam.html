@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <meta charset="utf-8" />
+        <title>Hokie Sports - Joining Team</title>
+    </head>
+    <body>
+        <form action='http://localhost:5000/handleJoinTeam' method='post'>
+            PID Number: <input type='text' name='pidNumber'><br>
+            Team: <select name='teamName'>
+                {% for i in teams %}
+                    <option value='{{ i }}'>{{ i }}</option>
+                {% endfor %}<!-- use list of -->
+            </select><br>
+            <input type='submit' value='Submit'>
+        </form><br>
+        <a href='http://localhost:5000/'>
+            <button>Home</button>
+        </a>
+    </body>
+</html>

@@ -8,6 +8,7 @@ teams = db.teams
 users = db.users
 interactions = db.interactions
 
+# empties out the database
 teams.delete_many({})
 users.delete_many({})
 interactions.delete_many({})
@@ -35,6 +36,18 @@ teamTwo['teamCaptain'] = 'captain2'
 teamTwo['sport'] = 'Soccer'
 teamTwo['schedule'] = [gameOne]
 
+logOne = dict()
+logOne['action'] = 'New Team created'
+logOne['info'] = teamOne
+logOne['timeStamp'] = time.time()
+
+logTwo = dict()
+logTwo['action'] = 'New Team created'
+logTwo['info'] = teamTwo
+logTwo['timeStamp'] = time.time()
+
 teams.insert_one(teamOne)
 teams.insert_one(teamTwo)
+interactions.insert_one(logOne)
+interactions.insert_one(logTwo)
 

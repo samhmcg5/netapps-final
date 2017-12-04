@@ -1,6 +1,7 @@
 import flask
 from pymongo import MongoClient
 import os
+import socket
 #import face_recognition
 
 client = MongoClient()
@@ -11,6 +12,7 @@ interactions = db.interactions
 
 app = flask.Flask(__name__)
 
+########## MOCKING UP DATA
 # def addGame():
 #     for team in teams.find():
 #         gameData = dict()
@@ -83,7 +85,6 @@ def handleNewTeamData():
     print(data)
     teams.insert_one(data)
     return flask.redirect('http://localhost:5000/newTeam')
-    #level = flask.request.form['level']
     #add to database
 
 #change to register
@@ -93,6 +94,7 @@ def handleNewMemberData():
     playerName = flask.request.form['playerName']
     pidNumber = flask.request.form['pidNumber']
     email = flask.request.form['email']
+    paid = flask.request.form['payment']
     f = flask.request.files['myPhoto']
 
     if playerName == '' or pidNumber == '' or email == '' or f.filename == '':
@@ -101,26 +103,40 @@ def handleNewMemberData():
     if '.jpg' not in f.filename or '.jpeg' not in f.filename:
         return 'Error - must upload a file in .jpg or .jpeg format'
 
-
     filename = 'face.jpg'
     f.save(os.path.join('./face.jpg'))
-    os.remove('./face.jpg')
     #load = face_recognition.load_image_file('face.jpg')
     #encoding = face_recognition.face_encodings(load)[0]
-
+    os.remove('./face.jpg')
+    data = dict()
+    data['playerName'] = playerName
+    data['pidNumber'] = pidNumber
+    data['email'] = email
+    data['teams'] = []
+    if paid == 'payNow':
+        data['paid'] = 'paid'
+    elif paid == 'payLater':
+        data['paid'] = 'notPaid'
+    
+    #data['encoding'] = encoding
+    users.insert_one(data)
 
     return flask.redirect('http://localhost:5000/')
-    #add to database
 
 @app.route('/handleJoinTeam', methods=['POST'])
 def joinTeam():
+    pidNumber = flask.request.form['pidNumber']
+    teamName = flask.request.form['teamName']
+
+    player = users.find_one({'pidNumber': pidNumber})
+    if player == None:
+        return 'Error - register first'
+    if teamName in player['teams']:
+        return 'You have already joined this team'
+    player['teams'].append(teamName)
+
     return flask.redirect('http://localhost:5000/')
 
-@app.route('/getInfo', methods=['GET'])
-def getInfo():
-    #returns dictionary including photo encoding
-    # as well as other necessary info
-    return 'info'
 
 if(__name__) == "__main__":
     app.run(host='localhost', debug=True)

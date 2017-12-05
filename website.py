@@ -173,7 +173,7 @@ def joinTeam():
 
     return flask.redirect('http://localhost:5000/')
 
-@app.route('/getInfo')
+@app.route('/createLog')
 def createFile():
     #maybe transfer the file to caller if added login credentials
     f = open('log.txt', 'w')
@@ -184,6 +184,40 @@ def createFile():
         f.write(s)
     f.close()
     return flask.redirect('http://localhost:5000/')
+
+#/getInfo?pidNumber=123123123'
+@app.route('/getInfo')
+def retData():
+    retVal = dict()
+    pidNumber = flask.request.args.get('pidNumber')
+    if pidNumber == None or pidNumber == '':
+        return 400
+    player = users.find_one({'pidNumber': pidNumber})
+    if player == None:
+        retVal['regStatus'] = 0
+
+    #assuming that the player has joined a team
+    teamName = player['teams'][0][0]
+    sport = player['teams'][0][1]
+    playerName = player['playerName']
+    team = teams.find_one({'teamName': teamName})
+    nextGame = team['schedule'][0]
+    encoding = player['encoding']
+
+    retVal['encoding'] = encoding
+    retVal['playerName'] = playerName
+    retVal['sport'] = sport
+    retVal['teamName'] = teamName
+    retVal['nextGame'] = nextGame
+
+    if player['paid'] == 'paid':
+        retVal['regStatus'] = 2
+        return retVal
+    else:
+        retVal['regStatus'] = 1
+        return retVal
+
+    return 'fuck off'
 
 if(__name__) == "__main__":
     app.run(host='localhost', debug=True)

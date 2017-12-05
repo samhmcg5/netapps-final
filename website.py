@@ -1,6 +1,8 @@
 import flask
 from pymongo import MongoClient
 import os
+import socket
+import time
 #import face_recognition
 
 client = MongoClient()
@@ -11,6 +13,7 @@ interactions = db.interactions
 
 app = flask.Flask(__name__)
 
+########## MOCKING UP DATA
 # def addGame():
 #     for team in teams.find():
 #         gameData = dict()
@@ -18,21 +21,10 @@ app = flask.Flask(__name__)
 #         team['schedule'] = gameData
 
 '''
-{
-    "name": "Bennett White",
-    "pin": 123456789,
-    "pid": "benwh1te",
-    "teams": [
-        {
-            "teamName": "Netapp Bois",
-            "sport": "Indoor Soccer"
-        },
-        {
-            "teamName": "VolleyBallers",
-            "sport": "Flag Football"
-        }
-    ],
-    "paid": 1
+log = {
+    'action': 'newTeam'
+    'info': dataInsertedIntoDatabase
+    'timeStamp': time.time()
 }
 '''
 
@@ -52,6 +44,7 @@ def newMember():
 def newTeam():
     sports = ['Soccer', 'Football']
     return flask.render_template('newTeam.html', sports=sports)
+
 @app.route('/joinTeam')
 def join():
     teamArr = []
@@ -70,20 +63,40 @@ def join():
 def handleNewTeamData():
     teamName = flask.request.form['teamName']
     teamCaptain = flask.request.form['teamCaptain']
-    if teamName == '' or teamCaptain == '':
-        return 'Error - fill in all data forms'
     sport = flask.request.form['sport']
-    if teams.find_one({'teamName': teamName, 'sport': sport}) != None:
-        return 'Error - Team Name already exists'
+    
     data = dict()
     data['teamName'] = teamName
     data['teamCaptain'] = teamCaptain
     data['sport'] = sport
     data['schedule'] = dict()
-    print(data)
+
+    if teamName == '' or teamCaptain == '':
+        log = dict()
+        log['action'] = 'New Team failed to create'
+        log['info'] = data
+        log['timeStamp'] = time.time()
+        interactions.insert_one(log)
+        return 'Error - fill in all data forms'
+
+    if teams.find_one({'teamName': teamName, 'sport': sport}) != None:
+        log = dict()
+        log['action'] = 'New Team failed to create'
+        log['info'] = data
+        log['timeStamp'] = time.time()
+        interactions.insert_one(log)
+        return 'Error - fill in all data forms'
+        return 'Error - Team Name already exists'
+
     teams.insert_one(data)
+
+    log = dict()
+    log['action'] = 'New Team created'
+    log['info'] = data
+    log['timeStamp'] = time.time()
+    interactions.insert_one(log)
+
     return flask.redirect('http://localhost:5000/newTeam')
-    #level = flask.request.form['level']
     #add to database
 
 #change to register
@@ -93,34 +106,84 @@ def handleNewMemberData():
     playerName = flask.request.form['playerName']
     pidNumber = flask.request.form['pidNumber']
     email = flask.request.form['email']
+    paid = flask.request.form['payment']
     f = flask.request.files['myPhoto']
-
-    if playerName == '' or pidNumber == '' or email == '' or f.filename == '':
-        return "Error - fill in all data forms"
-
-    if '.jpg' not in f.filename or '.jpeg' not in f.filename:
-        return 'Error - must upload a file in .jpg or .jpeg format'
-
 
     filename = 'face.jpg'
     f.save(os.path.join('./face.jpg'))
-    os.remove('./face.jpg')
     #load = face_recognition.load_image_file('face.jpg')
     #encoding = face_recognition.face_encodings(load)[0]
+    os.remove('./face.jpg')
+    data = dict()
+    data['playerName'] = playerName
+    data['pidNumber'] = pidNumber
+    data['email'] = email
+    data['teams'] = []
+    if paid == 'payNow':
+        data['paid'] = 'paid'
+    elif paid == 'payLater':
+        data['paid'] = 'notPaid'
+    #data['encoding'] = encoding
 
+    if playerName == '' or pidNumber == '' or email == '' or f.filename == '':
+        log = dict()
+        log['action'] = 'New member registration failed'
+        log['info'] = data
+        log['timeStamp'] = time.time()
+        return "Error - fill in all data forms"
+
+    if '.jpg' not in f.filename or '.jpeg' not in f.filename:
+        log = dict()
+        log['action'] = 'New member registration failed'
+        log['info'] = data
+        log['timeStamp'] = time.time()
+        return 'Error - must upload a file in .jpg or .jpeg format'
+
+    #data['encoding'] = encoding
+    users.insert_one(data)
+    log = dict()
+    log['action'] = 'New member registered'
+    log['info'] = data
+    log['timeStamp'] = time.time()
 
     return flask.redirect('http://localhost:5000/')
-    #add to database
 
 @app.route('/handleJoinTeam', methods=['POST'])
 def joinTeam():
+    pidNumber = flask.request.form['pidNumber']
+    teamName = flask.request.form['teamName']
+    teamTuple = (teamName[0:teamName.index('-')-1], teamName[teamName.index('-')+2:len(teamName)])
+
+    player = users.find_one({'pidNumber': pidNumber})
+    #log errors as well
+    if player == None:
+        return 'Error - register first'
+    if teamTuple in player['teams']:
+        return 'You have already joined this team'
+    player['teams'].append(teamTuple)
+    # find and replace call here
+    data = dict()
+    data['playerName'] = player['playerName']
+    data['team'] = teamName
+
+    log = dict()
+    log['action'] = 'Successful team join'
+    log['info'] = data
+    log['timeStamp'] = time.time()
+
     return flask.redirect('http://localhost:5000/')
 
-@app.route('/getInfo', methods=['GET'])
-def getInfo():
-    #returns dictionary including photo encoding
-    # as well as other necessary info
-    return 'info'
+@app.route('/getInfo')
+def createFile():
+    #maybe transfer the file to caller if added login credentials
+    f = open('log.txt', 'w')
+    for post in interactions.find():
+        s = ''
+        s = ('At ' + time.asctime(time.localtime(post['timeStamp'])) + 'action "' + post['action'] + '" was received with data: ' +
+        str(post['info']) )
+        f.write(s)
+    f.close()
+    return flask.redirect('http://localhost:5000/')
 
 if(__name__) == "__main__":
     app.run(host='localhost', debug=True)

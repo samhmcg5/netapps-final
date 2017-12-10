@@ -34,7 +34,7 @@ def deny(client):
 def start_camera(client):
     client.send("start!".encode())
 
-def connect(port):
+def connect_ctl(port):
     sock = socket.socket()
     sock.bind(('localhost', port))
     sock.listen(1)
@@ -43,9 +43,18 @@ def connect(port):
     print("Accepted")
     return client, addr
 
+def connect_img(port):
+    sock = socket.socket()
+    sock.setblocking(0)
+    sock.bind(('localhost', port))
+    sock.listen(1)
+    print("Listened")
+    client, addr = sock.accept() 
+    print("Accepted")
+    return client, addr
 
-client, addr = connect(9999)
-img_client, addr = connect(9998)
+client, addr = connect_ctl(9999)
+img_client, img_addr = connect_img(9998)
 data = ''
 while data != 'done':
     data = input()

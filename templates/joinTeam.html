@@ -5,7 +5,7 @@
         <title>Hokie Sports - Joining Team</title>
     </head>
     <body>
-        <form action='http://localhost:5000/handleJoinTeam' method='post'>
+        <form action='http://192.168.1.128:5000/handleJoinTeam' method='post'>
             PID Number: <input type='text' name='pidNumber'><br>
             Team: <select name='teamName'>
                 {% for i in teams %}
@@ -14,7 +14,7 @@
             </select><br>
             <input type='submit' value='Submit'>
         </form><br>
-        <a href='http://localhost:5000/'>
+        <a href='http://192.168.1.128:5000/'>
             <button>Home</button>
         </a>
     </body>

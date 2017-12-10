@@ -3,7 +3,8 @@ from pymongo import MongoClient
 import os
 import socket
 import time
-#import face_recognition
+import face_recognition
+import json
 
 client = MongoClient()
 db = client.hokieSports
@@ -56,7 +57,7 @@ def join():
 # def handleCheckInData():
 #     #return flask.render_template('checkIn.html')
 #     print(flask.request.form['pidNumber'])
-#     return flask.redirect('http://localhost:5000/checkin')
+#     return flask.redirect('http://192.168.1.128:5000/checkin')
 #     #check database
 
 @app.route('/handleNewTeamData', methods=['POST'])
@@ -96,7 +97,7 @@ def handleNewTeamData():
     log['timeStamp'] = time.time()
     interactions.insert_one(log)
 
-    return flask.redirect('http://localhost:5000/newTeam')
+    return flask.redirect('http://192.168.1.128:5000/newTeam')
     #add to database
 
 #change to register
@@ -111,9 +112,12 @@ def handleNewMemberData():
 
     filename = 'face.jpg'
     f.save(os.path.join('./face.jpg'))
-    #load = face_recognition.load_image_file('face.jpg')
-    #encoding = face_recognition.face_encodings(load)[0]
+    load = face_recognition.load_image_file('face.jpg')
+    encoding = face_recognition.face_encodings(load)[0]
     os.remove('./face.jpg')
+
+    encoding = encoding.tolist()
+    print('here')
     data = dict()
     data['playerName'] = playerName
     data['pidNumber'] = pidNumber
@@ -123,7 +127,7 @@ def handleNewMemberData():
         data['paid'] = 'paid'
     elif paid == 'payLater':
         data['paid'] = 'notPaid'
-    #data['encoding'] = encoding
+    data['encoding'] = encoding
 
     if playerName == '' or pidNumber == '' or email == '' or f.filename == '':
         log = dict()
@@ -132,21 +136,20 @@ def handleNewMemberData():
         log['timeStamp'] = time.time()
         return "Error - fill in all data forms"
 
-    if '.jpg' not in f.filename or '.jpeg' not in f.filename:
+    if '.jpg' not in f.filename and '.jpeg' not in f.filename:
         log = dict()
         log['action'] = 'New member registration failed'
         log['info'] = data
         log['timeStamp'] = time.time()
         return 'Error - must upload a file in .jpg or .jpeg format'
 
-    #data['encoding'] = encoding
     users.insert_one(data)
     log = dict()
     log['action'] = 'New member registered'
     log['info'] = data
     log['timeStamp'] = time.time()
 
-    return flask.redirect('http://localhost:5000/')
+    return flask.redirect('http://192.168.1.128:5000/')
 
 @app.route('/handleJoinTeam', methods=['POST'])
 def joinTeam():
@@ -160,7 +163,9 @@ def joinTeam():
         return 'Error - register first'
     if teamTuple in player['teams']:
         return 'You have already joined this team'
+    users.delete_one(player)
     player['teams'].append(teamTuple)
+    users.insert_one(player)
     # find and replace call here
     data = dict()
     data['playerName'] = player['playerName']
@@ -171,7 +176,7 @@ def joinTeam():
     log['info'] = data
     log['timeStamp'] = time.time()
 
-    return flask.redirect('http://localhost:5000/')
+    return flask.redirect('http://192.168.1.128:5000/')
 
 @app.route('/createLog')
 def createFile():
@@ -179,20 +184,20 @@ def createFile():
     f = open('log.txt', 'w')
     for post in interactions.find():
         s = ''
-        s = ('At ' + time.asctime(time.localtime(post['timeStamp'])) + 'action "' + post['action'] + '" was received with data: ' +
+        s = ('At ' + time.asctime(time.localtime(post['timeStamp'])) + ', action "' + post['action'] + '" was received with data: ' +
         str(post['info']) )
         f.write(s)
     f.close()
-    return flask.redirect('http://localhost:5000/')
+    return flask.redirect('http://192.168.1.128:5000/')
 
-#/getInfo?pidNumber=123123123'
+#/getInfo?pid=123123123'
 @app.route('/getInfo')
 def retData():
     retVal = dict()
-    pidNumber = flask.request.args.get('pidNumber')
-    if pidNumber == None or pidNumber == '':
+    pid = flask.request.args.get('pid')
+    if pid == None or pid == '':
         return 400
-    player = users.find_one({'pidNumber': pidNumber})
+    player = users.find_one({'email': (pid + '@vt.edu')})
     if player == None:
         retVal['regStatus'] = 0
 
@@ -210,14 +215,14 @@ def retData():
     retVal['teamName'] = teamName
     retVal['nextGame'] = nextGame
 
-    if player['paid'] == 'paid':
-        retVal['regStatus'] = 2
-        return retVal
-    else:
-        retVal['regStatus'] = 1
-        return retVal
+    # if player['paid'] == 'paid':
+    #     retVal['regStatus'] = 2
+    #     return retVal
+    # else:
+    #     retVal['regStatus'] = 1
+    #     return retVal
 
-    return 'fuck off'
+    return json.dumps(retVal)
 
 if(__name__) == "__main__":
-    app.run(host='localhost', debug=True)
+    app.run(host='192.168.1.128', debug=True)

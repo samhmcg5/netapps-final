@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <title>IM Sports Sign-In Portal</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->  
+    <link href="/static/signin.css" rel="stylesheet">
+    <link href="/static/cover.css" rel="stylesheet">
+    <link href="/static/img.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="site-wrapper">
+
+      <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+          <h1 class="form-signin-heading">IM Sports Sign-In Portal</h1>
+          <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4 test">
+              {% if filename %}
+                <img src="{{filename}}" class="img-responsive"></img>
+              {% else %}
+                <p>No Picture Taken</p>
+              {% endif %}
+            </div>
+            <div class="col-sm-4"></div>
+          </div>
+          <div class="inner cover">
+            <form class="form-signin" action="" method="post">
+             <button class="btn btn-primary btn-block" type="submit" name="action" value="photo">Take A Photo</button>
+             <button class="btn btn-primary btn-block" type="submit" name="action" value="logout">Logout</button>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </body>
+</html>

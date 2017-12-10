@@ -215,12 +215,12 @@ def retData():
     retVal['teamName'] = teamName
     retVal['nextGame'] = nextGame
 
-    # if player['paid'] == 'paid':
-    #     retVal['regStatus'] = 2
-    #     return retVal
-    # else:
-    #     retVal['regStatus'] = 1
-    #     return retVal
+    if player['paid'] == 'paid':
+        retVal['regStatus'] = 2
+        return json.dumps(retVal)
+    else:
+        retVal['regStatus'] = 1
+        return json.dumps(retVal)
 
     return json.dumps(retVal)
 

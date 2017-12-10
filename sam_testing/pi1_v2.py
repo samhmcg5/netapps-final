@@ -1,7 +1,6 @@
 from threading import Thread
 import sys
 import cv2
-# import socket
 import time
 import sys
 from flask import Flask, send_file
@@ -41,6 +40,13 @@ class DisplayThread(Thread):
 
 video = DisplayThread()
 
+@app.route('/')
+def begin():
+    global video
+    if not video.isAlive():
+        video.start()
+    return "initialized"
+
 @app.route('/photo')
 def send_photo():
     global video
@@ -60,14 +66,10 @@ def stop_cam():
     video.end_capture()
     return "Stopping"
 
-@app.route('/shit')
-def break_it():
-    global video
-    video.exit = True
-    return send_file('yousuck.jpg')
 
-
-app.run(host='192.168.1.105', port=9999, debug=True)
-video.start()
+# if __name__ == '__main__':
+# video.start()
+app.run(host='192.168.1.105', port=9999, debug=False)
+video.join()
 
 

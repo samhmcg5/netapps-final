@@ -3,9 +3,10 @@
     <head>
         <meta charset="utf-8" />
         <title>Hokie Sport - New Intramural Team</title>
+        <link href="/static/bootstrap.min.css" rel='stylesheet'>
     </head>
     <body>
-        <form action='http://192.168.1.128:5000/handleNewTeamData' method='post'>
+        <form action='/handleNewTeamData' method='post'>
             Team Name: <input type='text' name='teamName'><br>
             Team Captain: <input type='text' name='teamCaptain'><br>
             Sport: <select name='sport'>
@@ -17,10 +18,10 @@
                 <option value='beginner'>Beginner</option>
                 <option value='advanced'>Advanced</option>
             </select><br> -->
-            <input type='submit' value='Submit'>
+            <input class='btn btn-primary' type='submit' value='Submit'>
         </form><br>
-        <a href='http://192.168.1.128:5000/'>
-            <button>Home</button>
+        <a href='/'>
+            <button class='btn btn-primary'>Home</button>
         </a>
     </body>
 </html>

@@ -3,19 +3,20 @@
     <head>
         <meta charset="utf-8" />
         <title>Hokie Sports - Joining Team</title>
+        <link href="/static/bootstrap.min.css" rel='stylesheet'>
     </head>
     <body>
-        <form action='http://192.168.1.128:5000/handleJoinTeam' method='post'>
+        <form action='/handleJoinTeam' method='post'>
             PID Number: <input type='text' name='pidNumber'><br>
             Team: <select name='teamName'>
                 {% for i in teams %}
                     <option value='{{ i }}'>{{ i }}</option>
                 {% endfor %}<!-- use list of -->
             </select><br>
-            <input type='submit' value='Submit'>
+            <input class='btn btn-primary' type='submit' value='Submit'>
         </form><br>
-        <a href='http://192.168.1.128:5000/'>
-            <button>Home</button>
+        <a href='/'>
+            <button class='btn btn-primary'>Home</button>
         </a>
     </body>
 </html>

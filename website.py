@@ -5,6 +5,7 @@ import socket
 import time
 import face_recognition
 import json
+from subprocess import check_output
 
 client = MongoClient()
 db = client.hokieSports
@@ -29,7 +30,7 @@ log = {
 }
 '''
 
-IP = check_output(['hostname', 'I']).decode()
+IP = check_output(['hostname', '-I']).decode()
 IP = IP.split(' ')[0]
 
 @app.route('/')

@@ -6,7 +6,7 @@
         <link href="/static/bootstrap.min.css" rel='stylesheet'>
     </head>
     <body>
-        <form action='http://192.168.1.128:5000/handleJoinTeam' method='post'>
+        <form action='/handleJoinTeam' method='post'>
             PID Number: <input type='text' name='pidNumber'><br>
             Team: <select name='teamName'>
                 {% for i in teams %}
@@ -15,7 +15,7 @@
             </select><br>
             <input class='btn btn-primary' type='submit' value='Submit'>
         </form><br>
-        <a href='http://192.168.1.128:5000/'>
+        <a href='/'>
             <button class='btn btn-primary'>Home</button>
         </a>
     </body>

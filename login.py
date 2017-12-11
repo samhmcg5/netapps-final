@@ -10,6 +10,9 @@ import pygame
 import pygame.camera
 from pygame.locals import *
 
+import cv2
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
 app = Flask(__name__)
 
 IP = check_output(['hostname','-I']).decode()
@@ -19,9 +22,9 @@ PORT = 9999
 #########################
 ###  CONFIGURE GPIO   ###
 #########################
-R_PIN = 16
-G_PIN = 20
-B_PIN = 21
+R_PIN = 25
+G_PIN = 24
+B_PIN = 23
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
@@ -29,6 +32,15 @@ pins = (R_PIN, G_PIN, B_PIN)
 
 GPIO.setup(pins, GPIO.OUT)
 GPIO.output(pins, GPIO.LOW) # all LOW
+
+def set_green():
+    GPIO.output(pins, (0,1,0))
+def set_yellow():
+    GPIO.output(pins, (0,0,1))
+def set_red():
+    GPIO.output(pins, (1,0,0))
+def set_off():
+    GPIO.output(pins, (0,0,0))
 
 #########################
 ### ZEROCONF REGISTER ###
@@ -65,30 +77,53 @@ class DisplayThread(Thread):
 
 # Create an instance of the camera interface
 video = DisplayThread()
+state = "auth"
 
-#########################
-### HELPER FUNCTIONS  ###
-#########################
-def set_green():
-    GPIO.output(pins, (0,1,0))
+class ClassifierThread(Thread):
+    def __init__(self, video):
+        Thread.__init__(self)
+        self.video = video
+    def run(self):
+        global state
+        while True:
+            frame = self.video.get_frame()
+            pygame.image.save(frame, "temp.jpg")
+            image = cv2.imread("temp.jpg")
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(
+                    gray,
+                    scaleFactor=1.1,
+                    minNeighbors=5,
+                    minSize=(30, 30),
+                    flags = cv2.CASCADE_SCALE_IMAGE
+                )
+            if state == "auth":
+                if len(faces) > 0:
+                    set_yellow()
+                else:
+                    set_off()
 
-def set_yellow():
-    GPIO.output(pins, (0,1,1))
-
-def set_red():
-    GPIO.output(pins, (1,0,0))
+classifier = ClassifierThread(video)
+classifier.start()
 
 #########################
 ###     WEB API       ###
 #########################
 @app.route('/')
 def begin():
-    return redirect('http://%s:%i/photo' % (IP,PORT))
+    global video
+    if not video.isAlive():
+        video.start()
+    frame = video.get_frame()
+    pygame.image.save(frame, "image.jpg")
+    return "Intialized"
 
 @app.route('/photo')
 def send_photo():
     # Set GPIO to yellow
     set_yellow()
+    global state
+    state = "auth"
     global video
     if not video.isAlive():
         video.start()
@@ -99,11 +134,15 @@ def send_photo():
 @app.route('/deny')
 def deny_access():
     # Set GPIO to Red
+    global state
+    state = "deny"
     set_red()
     return "Access Denied"
 
 @app.route('/approve')
 def approve_access():
+    global state
+    state = "approve"
     # Set GPIO to Green
     set_green()
     return "Approved"
@@ -111,7 +150,7 @@ def approve_access():
 
 # Start the Web App
 app.run(host=IP, port=PORT, debug=False)
-# Wait for the camera thread to complete
+classifier.join()
 video.join()
 
 

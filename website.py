@@ -29,6 +29,9 @@ log = {
 }
 '''
 
+IP = check_output(['hostname', 'I']).decode()
+IP = IP.split(' ')[0]
+
 @app.route('/')
 def homepage():
     return flask.render_template('main.html', test='test')
@@ -97,7 +100,7 @@ def handleNewTeamData():
     log['timeStamp'] = time.time()
     interactions.insert_one(log)
 
-    return flask.redirect('http://192.168.1.128:5000/newTeam')
+    return flask.redirect('http://' + IP + ':5000/newTeam')
     #add to database
 
 #change to register
@@ -152,7 +155,7 @@ def handleNewMemberData():
     log['timeStamp'] = time.time()
     interactions.insert_one(log)
 
-    return flask.redirect('http://192.168.1.128:5000/')
+    return flask.redirect('http://' + IP + ':5000/')
 
 @app.route('/handleJoinTeam', methods=['POST'])
 def joinTeam():
@@ -180,7 +183,7 @@ def joinTeam():
     log['timeStamp'] = time.time()
     interactions.insert_one(log)
 
-    return flask.redirect('http://192.168.1.128:5000/')
+    return flask.redirect('http://' + IP + ':5000/')
 
 @app.route('/createLog')
 def createFile():
@@ -192,7 +195,7 @@ def createFile():
         str(post['info']) + '\n' )
         f.write(s)
     f.close()
-    return flask.redirect('http://192.168.1.128:5000/')
+    return flask.redirect('http://' + IP + ':5000/')
 
 #/getInfo?pid=benwh1te'
 @app.route('/getInfo')
@@ -229,4 +232,4 @@ def retData():
     return json.dumps(retVal)
 
 if(__name__) == "__main__":
-    app.run(host='192.168.1.128', debug=True)
+    app.run(host=IP, debug=True)

@@ -5,6 +5,8 @@ import socket
 import time
 import face_recognition
 import json
+from subprocess import check_output
+from zeroconf import ServiceInfo, Zeroconf
 
 client = MongoClient()
 db = client.hokieSports
@@ -14,12 +16,21 @@ interactions = db.interactions
 
 app = flask.Flask(__name__)
 
-########## MOCKING UP DATA
-# def addGame():
-#     for team in teams.find():
-#         gameData = dict()
-#         gameData['location'] = 'Field 1'
-#         team['schedule'] = gameData
+IP = check_output(['hostname', '-I']).decode()
+IP = IP.split(' ')[0]
+PORT = 6969
+
+#########################
+### ZEROCONF REGISTER ###
+#########################
+print("[ 01 ] Registering Zeroconf Service to %s:%i" % (IP, PORT))
+desc = {'path': '/photo'}
+info = ServiceInfo("_http._tcp.local.",
+"Database._http._tcp.local.",
+socket.inet_aton(IP), PORT, 0, 0,
+desc, "ash-2.local.")
+zeroconf = Zeroconf()
+zeroconf.register_service(info)
 
 '''
 log = {
@@ -28,6 +39,8 @@ log = {
     'timeStamp': time.time()
 }
 '''
+
+
 
 @app.route('/')
 def homepage():
@@ -97,7 +110,7 @@ def handleNewTeamData():
     log['timeStamp'] = time.time()
     interactions.insert_one(log)
 
-    return flask.redirect('http://192.168.1.128:5000/newTeam')
+    return flask.redirect('http://' + IP + ':5000/newTeam')
     #add to database
 
 #change to register
@@ -108,6 +121,7 @@ def handleNewMemberData():
     pidNumber = flask.request.form['pidNumber']
     email = flask.request.form['email']
     paid = flask.request.form['payment']
+    password = flask.request.form['password']
     f = flask.request.files['myPhoto']
 
     filename = 'face.jpg'
@@ -128,12 +142,14 @@ def handleNewMemberData():
     elif paid == 'payLater':
         data['paid'] = 'notPaid'
     data['encoding'] = encoding
+    data['password'] = password
 
-    if playerName == '' or pidNumber == '' or email == '' or f.filename == '':
+    if password == '' or playerName == '' or pidNumber == '' or email == '' or f.filename == '':
         log = dict()
         log['action'] = 'New member registration failed'
         log['info'] = data
         log['timeStamp'] = time.time()
+        interactions.insert_one(log)
         return "Error - fill in all data forms"
 
     if '.jpg' not in f.filename and '.jpeg' not in f.filename:
@@ -141,6 +157,7 @@ def handleNewMemberData():
         log['action'] = 'New member registration failed'
         log['info'] = data
         log['timeStamp'] = time.time()
+        interactions.insert_one(log)
         return 'Error - must upload a file in .jpg or .jpeg format'
 
     users.insert_one(data)
@@ -148,8 +165,9 @@ def handleNewMemberData():
     log['action'] = 'New member registered'
     log['info'] = data
     log['timeStamp'] = time.time()
+    interactions.insert_one(log)
 
-    return flask.redirect('http://192.168.1.128:5000/')
+    return flask.redirect('http://' + IP + ':5000/')
 
 @app.route('/handleJoinTeam', methods=['POST'])
 def joinTeam():
@@ -175,8 +193,9 @@ def joinTeam():
     log['action'] = 'Successful team join'
     log['info'] = data
     log['timeStamp'] = time.time()
+    interactions.insert_one(log)
 
-    return flask.redirect('http://192.168.1.128:5000/')
+    return flask.redirect('http://' + IP + ':5000/')
 
 @app.route('/createLog')
 def createFile():
@@ -185,12 +204,12 @@ def createFile():
     for post in interactions.find():
         s = ''
         s = ('At ' + time.asctime(time.localtime(post['timeStamp'])) + ', action "' + post['action'] + '" was received with data: ' +
-        str(post['info']) )
+        str(post['info']) + '\n' )
         f.write(s)
     f.close()
-    return flask.redirect('http://192.168.1.128:5000/')
+    return flask.redirect('http://' + IP + ':5000/')
 
-#/getInfo?pid=123123123'
+#/getInfo?pid=benwh1te'
 @app.route('/getInfo')
 def retData():
     retVal = dict()
@@ -200,20 +219,29 @@ def retData():
     player = users.find_one({'email': (pid + '@vt.edu')})
     if player == None:
         retVal['regStatus'] = 0
+        return json.dumps(retVal)
 
     #assuming that the player has joined a team
-    teamName = player['teams'][0][0]
-    sport = player['teams'][0][1]
+    
     playerName = player['playerName']
-    team = teams.find_one({'teamName': teamName})
-    nextGame = team['schedule'][0]
     encoding = player['encoding']
+    password = player['password']
+    teamName = ''
+    sport = ''
+    nextGame = ''
+
+    if len(player['teams']) > 0:
+        teamName = player['teams'][0][0]
+        sport = player['teams'][0][1]
+        team = teams.find_one({'teamName': teamName})
+        nextGame = team['schedule'][0]
 
     retVal['encoding'] = encoding
     retVal['playerName'] = playerName
     retVal['sport'] = sport
     retVal['teamName'] = teamName
     retVal['nextGame'] = nextGame
+    retVal['password'] = password
 
     if player['paid'] == 'paid':
         retVal['regStatus'] = 2
@@ -224,5 +252,12 @@ def retData():
 
     return json.dumps(retVal)
 
+@app.route('/getUsers')
+def getUsers():
+    retVal = dict()
+    for user in users.find():
+        retVal[user['email']] = user['password']
+    return json.dumps(retVal)
+
 if(__name__) == "__main__":
-    app.run(host='192.168.1.128', debug=True)
+    app.run(host=IP, debug=True)

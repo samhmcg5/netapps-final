@@ -219,15 +219,22 @@ def retData():
     player = users.find_one({'email': (pid + '@vt.edu')})
     if player == None:
         retVal['regStatus'] = 0
+        return json.dumps(retVal)
 
     #assuming that the player has joined a team
-    teamName = player['teams'][0][0]
-    sport = player['teams'][0][1]
+    
     playerName = player['playerName']
-    team = teams.find_one({'teamName': teamName})
-    nextGame = team['schedule'][0]
     encoding = player['encoding']
     password = player['password']
+    teamName = ''
+    sport = ''
+    nextGame = ''
+
+    if len(player['teams']) > 0:
+        teamName = player['teams'][0][0]
+        sport = player['teams'][0][1]
+        team = teams.find_one({'teamName': teamName})
+        nextGame = team['schedule'][0]
 
     retVal['encoding'] = encoding
     retVal['playerName'] = playerName

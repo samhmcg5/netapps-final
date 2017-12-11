@@ -6,6 +6,7 @@ import time
 import face_recognition
 import json
 from subprocess import check_output
+from zeroconf import ServiceInfo, Zeroconf
 
 client = MongoClient()
 db = client.hokieSports
@@ -15,12 +16,21 @@ interactions = db.interactions
 
 app = flask.Flask(__name__)
 
-########## MOCKING UP DATA
-# def addGame():
-#     for team in teams.find():
-#         gameData = dict()
-#         gameData['location'] = 'Field 1'
-#         team['schedule'] = gameData
+IP = check_output(['hostname', '-I']).decode()
+IP = IP.split(' ')[0]
+PORT = 6969
+
+#########################
+### ZEROCONF REGISTER ###
+#########################
+print("[ 01 ] Registering Zeroconf Service to %s:%i" % (IP, PORT))
+desc = {'path': '/photo'}
+info = ServiceInfo("_http._tcp.local.",
+"Database._http._tcp.local.",
+socket.inet_aton(IP), PORT, 0, 0,
+desc, "ash-2.local.")
+zeroconf = Zeroconf()
+zeroconf.register_service(info)
 
 '''
 log = {
@@ -30,8 +40,7 @@ log = {
 }
 '''
 
-IP = check_output(['hostname', '-I']).decode()
-IP = IP.split(' ')[0]
+
 
 @app.route('/')
 def homepage():
@@ -112,6 +121,7 @@ def handleNewMemberData():
     pidNumber = flask.request.form['pidNumber']
     email = flask.request.form['email']
     paid = flask.request.form['payment']
+    password = flask.request.form['password']
     f = flask.request.files['myPhoto']
 
     filename = 'face.jpg'
@@ -132,8 +142,9 @@ def handleNewMemberData():
     elif paid == 'payLater':
         data['paid'] = 'notPaid'
     data['encoding'] = encoding
+    data['password'] = password
 
-    if playerName == '' or pidNumber == '' or email == '' or f.filename == '':
+    if password == '' or playerName == '' or pidNumber == '' or email == '' or f.filename == '':
         log = dict()
         log['action'] = 'New member registration failed'
         log['info'] = data
@@ -216,12 +227,14 @@ def retData():
     team = teams.find_one({'teamName': teamName})
     nextGame = team['schedule'][0]
     encoding = player['encoding']
+    password = player['password']
 
     retVal['encoding'] = encoding
     retVal['playerName'] = playerName
     retVal['sport'] = sport
     retVal['teamName'] = teamName
     retVal['nextGame'] = nextGame
+    retVal['password'] = password
 
     if player['paid'] == 'paid':
         retVal['regStatus'] = 2

@@ -17,10 +17,24 @@ IP = IP.split(' ')[1]
 PORT = 9999
 
 #########################
+###  CONFIGURE GPIO   ###
+#########################
+R_PIN = 16
+G_PIN = 20
+B_PIN = 21
+
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+pins = (R_PIN, G_PIN, B_PIN)
+
+GPIO.setup(pins, GPIO.OUT)
+GPIO.output(pins, GPIO.LOW) # all LOW
+
+#########################
 ### ZEROCONF REGISTER ###
 #########################
 print("[ 01 ] Registering Zeroconf Service to %s:%i" % (IP, PORT))
-desc = {'path': '/photo/'}
+desc = {'path': '/photo'}
 info = ServiceInfo("_http._tcp.local.",
                    "LoginNode._http._tcp.local.",
                    socket.inet_aton(IP), PORT, 0, 0,
@@ -53,6 +67,18 @@ class DisplayThread(Thread):
 video = DisplayThread()
 
 #########################
+### HELPER FUNCTIONS  ###
+#########################
+def set_green():
+    GPIO.output(pins, (0,1,0))
+
+def set_yellow():
+    GPIO.output(pins, (0,1,1))
+
+def set_red():
+    GPIO.output(pins, (1,0,0))
+
+#########################
 ###     WEB API       ###
 #########################
 @app.route('/')
@@ -62,6 +88,7 @@ def begin():
 @app.route('/photo')
 def send_photo():
     # Set GPIO to yellow
+    set_yellow()
     global video
     if not video.isAlive():
         video.start()
@@ -72,16 +99,19 @@ def send_photo():
 @app.route('/deny')
 def deny_access():
     # Set GPIO to Red
+    set_red()
     return "Access Denied"
 
 @app.route('/approve')
 def approve_access():
     # Set GPIO to Green
+    set_green()
     return "Approved"
 
 
 # Start the Web App
 app.run(host=IP, port=PORT, debug=False)
+# Wait for the camera thread to complete
 video.join()
 
 

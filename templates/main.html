@@ -3,18 +3,21 @@
     <head>
         <meta charset="utf-8" />
         <title>Hokie Sports - Intramural</title>
+        <link href="../static/bootstrap.min.css" rel='stylesheet'>
     </head>
     <body>
-        <a href='http://192.168.1.128:5000/newMember'>
-            <button>Sign up as a new member</button>
-        </a>
-        <br/>
-        <a href='http://192.168.1.128:5000/newTeam'>
-            <button>Sign up a new team</button>
-        </a>
-        <br>
-        <a href='http://192.168.1.128:5000/joinTeam'>
-            <button>Join an existing team</button>
-        </a>
+        <div class='site-wrapper'>
+            <a href='/newMember'>
+                <button class='btn btn-primary btn-block'>Sign up as a new member</button>
+            </a>
+            <br/>
+            <a href='http://192.168.1.128:5000/newTeam'>
+                <button class='btn btn-primary btn-block'>Sign up a new team</button>
+            </a>
+            <br>
+            <a href='http://192.168.1.128:5000/joinTeam'>
+                <button class='btn btn-primary btn-block'>Join an existing team</button>
+            </a>
+        </div>
     </body>
 </html>

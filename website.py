@@ -134,6 +134,7 @@ def handleNewMemberData():
         log['action'] = 'New member registration failed'
         log['info'] = data
         log['timeStamp'] = time.time()
+        interactions.insert_one(log)
         return "Error - fill in all data forms"
 
     if '.jpg' not in f.filename and '.jpeg' not in f.filename:
@@ -141,6 +142,7 @@ def handleNewMemberData():
         log['action'] = 'New member registration failed'
         log['info'] = data
         log['timeStamp'] = time.time()
+        interactions.insert_one(log)
         return 'Error - must upload a file in .jpg or .jpeg format'
 
     users.insert_one(data)
@@ -148,6 +150,7 @@ def handleNewMemberData():
     log['action'] = 'New member registered'
     log['info'] = data
     log['timeStamp'] = time.time()
+    interactions.insert_one(log)
 
     return flask.redirect('http://192.168.1.128:5000/')
 
@@ -175,6 +178,7 @@ def joinTeam():
     log['action'] = 'Successful team join'
     log['info'] = data
     log['timeStamp'] = time.time()
+    interactions.insert_one(log)
 
     return flask.redirect('http://192.168.1.128:5000/')
 
@@ -185,12 +189,12 @@ def createFile():
     for post in interactions.find():
         s = ''
         s = ('At ' + time.asctime(time.localtime(post['timeStamp'])) + ', action "' + post['action'] + '" was received with data: ' +
-        str(post['info']) )
+        str(post['info']) + '\n' )
         f.write(s)
     f.close()
     return flask.redirect('http://192.168.1.128:5000/')
 
-#/getInfo?pid=123123123'
+#/getInfo?pid=benwh1te'
 @app.route('/getInfo')
 def retData():
     retVal = dict()

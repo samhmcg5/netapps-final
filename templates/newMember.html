@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <title>Hokie Sport - New Intramural Player</title>
+        <link href="/static/bootstrap.min.css" rel='stylesheet'>
     </head>
     <body>
         <form action='http://192.168.1.128:5000/handleNewMemberData' method='post' enctype="multipart/form-data">
@@ -14,10 +15,10 @@
                 <option value='payLater'>Pay Later</option>
             </select><br>
             Upload a picture of your face: <input type='file' name='myPhoto'><br>
-            <input type='submit' value='Submit'>
+            <input class='btn btn-primary' type='submit' value='Submit'>
         </form><br>
         <a href='http://192.168.1.128:5000/'>
-            <button>Home</button>
+            <button class='btn btn-primary'>Home</button>
         </a>
     </body>
 </html>

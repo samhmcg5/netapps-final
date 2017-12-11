@@ -252,5 +252,12 @@ def retData():
 
     return json.dumps(retVal)
 
+@app.route('/getUsers')
+def getUsers():
+    retVal = dict()
+    for user in users.find():
+        retVal[user['email']] = user['password']
+    return json.dumps(retVal)
+
 if(__name__) == "__main__":
     app.run(host=IP, debug=True)

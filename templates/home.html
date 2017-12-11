@@ -10,7 +10,11 @@
 
     <!-- Bootstrap core CSS -->
     <link href="/static/bootstrap.min.css" rel="stylesheet">
-
+    
+    <!-- Bootstrap core JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    
     <!-- Custom styles for this template -->  
     <link href="/static/signin.css" rel="stylesheet">
     <link href="/static/cover.css" rel="stylesheet">
@@ -25,20 +29,80 @@
 
         <div class="cover-container">
           <h1 class="form-signin-heading">IM Sports Sign-In Portal</h1>
+          <br>
           <div class="row">
-            <div class="col-sm-4"></div>
-            <div class="col-sm-4 test">
+            <div class="col-sm-12 test">
               {% if filename %}
                 <img src="{{filename}}" class="img-responsive"></img>
               {% else %}
                 <p>No Picture Taken</p>
               {% endif %}
             </div>
-            <div class="col-sm-4"></div>
+          </div>
+          <br>
+          <div class="container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Sport</th>
+                  <th>Team</th>
+                  <th>Status</th>
+                  <th>Time</th>
+                  <th>Location</th>
+                  <th>Opponent</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {% if player %}
+                    <td>{{player}}</td>
+                  {% else %}
+                    <td>-</td>
+                  {% endif %}
+                  
+                  {% if sport %}
+                    <td>{{sport}}</td>
+                  {% else %}
+                    <td>-</td>
+                  {% endif %}
+
+                  {% if team %}
+                    <td>{{team}}</td>
+                  {% else %}
+                    <td>-</td>
+                  {% endif %}
+                  
+                  {% if status %}
+                    <td>{{status}}</td>
+                  {% else %}
+                    <td>-</td>
+                  {% endif %}
+                  
+                  {% if time %}
+                    <td>{{time}}</td>
+                  {% else %}
+                    <td>-</td>
+                  {% endif %}
+                  
+                  {% if location %}
+                    <td>{{location}}</td>
+                  {% else %}
+                    <td>-</td>
+                  {% endif %}
+                  
+                  {% if opponent %}
+                    <td>{{opponent}}</td>
+                  {% else %}
+                    <td>-</td>
+                  {% endif %}
+                </tr>
+              </tbody>
+            </table>
           </div>
           <div class="inner cover">
             <form class="form-signin" action="" method="post">
-             <button class="btn btn-primary btn-block" type="submit" name="action" value="photo">Take A Photo</button>
+             <button class="btn btn-primary btn-block" type="submit" name="action" value="photo" onclick="getResults()">Take A Photo</button>
              <button class="btn btn-primary btn-block" type="submit" name="action" value="logout">Logout</button>
             </form>
           </div>

@@ -115,7 +115,6 @@ body {
   font-weight: bold;
 }
 
-
 /*
  * Footer
  */
@@ -157,4 +156,9 @@ body {
   .cover-container {
     width: 42rem;
   }
+}
+
+.test img{
+    width:80%;
+    height:100%;
 }

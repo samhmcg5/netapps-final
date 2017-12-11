@@ -14,11 +14,11 @@ teams = db.teams
 users = db.users
 interactions = db.interactions
 
-app = flask.Flask(__name__)
+app = flask.Flask("mydomain")
 
 IP = check_output(['hostname', '-I']).decode()
 IP = IP.split(' ')[0]
-PORT = 6969
+PORT = 5000
 
 #########################
 ### ZEROCONF REGISTER ###
@@ -124,14 +124,16 @@ def handleNewMemberData():
     password = flask.request.form['password']
     f = flask.request.files['myPhoto']
 
-    filename = 'face.jpg'
-    f.save(os.path.join('./face.jpg'))
-    load = face_recognition.load_image_file('face.jpg')
-    encoding = face_recognition.face_encodings(load)[0]
-    os.remove('./face.jpg')
-
-    encoding = encoding.tolist()
-    print('here')
+    try:
+        filename = 'face.jpg'
+        f.save(os.path.join('./face.jpg'))
+        load = face_recognition.load_image_file('face.jpg')
+        encoding = face_recognition.face_encodings(load)[0]
+        os.remove('./face.jpg')
+        encoding = encoding.tolist()
+    except:
+        return "Error - could not detect face in the photo"
+    
     data = dict()
     data['playerName'] = playerName
     data['pidNumber'] = pidNumber
@@ -260,4 +262,5 @@ def getUsers():
     return json.dumps(retVal)
 
 if(__name__) == "__main__":
+    #app.config['SERVER_NAME'] = 'mydomain.com:5000'
     app.run(host=IP, debug=True)

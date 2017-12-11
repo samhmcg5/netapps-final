@@ -19,6 +19,9 @@ gameOne['location'] = 'Field 1'
 gameOne['time'] = time.strptime('Mon Dec 4 18:30:00 2017')
 #time.asctime(time.strptime('Mon Dec 4 18:30:00 2017')) produces the string
 
+
+## HOME OR AWAY
+
 teamOne = dict()
 teamOne['teamName'] = 'testTeam1'
 teamOne['teamCaptain'] = 'captain1'
@@ -28,7 +31,7 @@ teamOne['schedule'] = [gameOne]
 gameOne = dict()
 gameOne['opponent'] = 'testTeam1'
 gameOne['location'] = 'Field 1'
-gameOne['time'] = time.strptime('Mon Dec 4 18:30:00 2017')
+gameOne['time'] = time.strptime('Mon Dec 18 18:30:00 2017')
 
 teamTwo = dict()
 teamTwo['teamName'] = 'testTeam2'

@@ -3,11 +3,21 @@
     <head>
         <meta charset="utf-8" />
         <title>Hokie Sports - Joining Team</title>
-        <link href="/static/bootstrap.min.css" rel='stylesheet'>
+        <!-- Bootstrap core CSS -->
+        <link href="/static/bootstrap.min.css" rel="stylesheet">
+        
+        <!-- Bootstrap core JS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        
+        <!-- Custom styles for this template -->  
+        <link href="/static/signin.css" rel="stylesheet">
+        <link href="/static/cover.css" rel="stylesheet">
+        <link href="/static/img.css" rel="stylesheet">
     </head>
     <body>
         <form action='/handleJoinTeam' method='post'>
-            PID Number: <input type='text' name='pidNumber'><br>
+            Email: <input type='text' name='email'><br>
             Team: <select name='teamName'>
                 {% for i in teams %}
                     <option value='{{ i }}'>{{ i }}</option>

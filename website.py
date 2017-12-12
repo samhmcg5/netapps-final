@@ -144,7 +144,6 @@ def handleNewMemberData():
     elif paid == 'payLater':
         data['paid'] = 'notPaid'
     data['password'] = password
-    
 
     if password == '' or playerName == '' or pidNumber == '' or email == '' or f.filename == '':
         log = dict()
@@ -175,11 +174,11 @@ def handleNewMemberData():
 
 @app.route('/handleJoinTeam', methods=['POST'])
 def joinTeam():
-    pidNumber = flask.request.form['pidNumber']
+    email = flask.request.form['email']
     teamName = flask.request.form['teamName']
     teamTuple = (teamName[0:teamName.index('-')-1], teamName[teamName.index('-')+2:len(teamName)])
 
-    player = users.find_one({'pidNumber': pidNumber})
+    player = users.find_one({'email': email})
     #log errors as well
     if player == None:
         return 'Error - register first'
@@ -254,8 +253,7 @@ def retData():
     retVal['sport'] = sport
     retVal['teamName'] = teamName
     retVal['nextGame'] = nextGame
-    retVal['password'] = password
-    
+    retVal['password'] = password    
 
     if player['paid'] == 'paid':
         log = dict()

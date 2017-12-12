@@ -147,6 +147,12 @@ def approve_access():
     set_green()
     return "Approved"
 
+@app.route('/blue')
+def go_blue():
+    global state
+    state = "auth"
+    return "blue"
+
 
 # Start the Web App
 app.run(host=IP, port=PORT, debug=False)

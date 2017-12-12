@@ -18,7 +18,7 @@ app = flask.Flask(__name__)
 
 IP = check_output(['hostname', '-I']).decode()
 IP = IP.split(' ')[0]
-PORT = 6969
+PORT = 5000
 
 #########################
 ### ZEROCONF REGISTER ###
@@ -147,7 +147,7 @@ def handleNewMemberData():
     if password == '' or playerName == '' or pidNumber == '' or email == '' or f.filename == '':
         log = dict()
         log['action'] = 'New member registration failed'
-        log['info'] = data
+        log['info'] = r
         log['timeStamp'] = time.time()
         interactions.insert_one(log)
         return "Error - fill in all data forms"
@@ -155,7 +155,7 @@ def handleNewMemberData():
     if '.jpg' not in f.filename and '.jpeg' not in f.filename:
         log = dict()
         log['action'] = 'New member registration failed'
-        log['info'] = data
+        log['info'] = r
         log['timeStamp'] = time.time()
         interactions.insert_one(log)
         return 'Error - must upload a file in .jpg or .jpeg format'
@@ -163,7 +163,7 @@ def handleNewMemberData():
     users.insert_one(data)
     log = dict()
     log['action'] = 'New member registered'
-    log['info'] = data
+    log['info'] = r
     log['timeStamp'] = time.time()
     interactions.insert_one(log)
 
@@ -171,11 +171,11 @@ def handleNewMemberData():
 
 @app.route('/handleJoinTeam', methods=['POST'])
 def joinTeam():
-    pidNumber = flask.request.form['pidNumber']
+    email = flask.request.form['email']
     teamName = flask.request.form['teamName']
     teamTuple = (teamName[0:teamName.index('-')-1], teamName[teamName.index('-')+2:len(teamName)])
 
-    player = users.find_one({'pidNumber': pidNumber})
+    player = users.find_one({'email': email})
     #log errors as well
     if player == None:
         return 'Error - register first'
@@ -219,6 +219,11 @@ def retData():
     player = users.find_one({'email': (pid + '@vt.edu')})
     if player == None:
         retVal['regStatus'] = 0
+        log = dict()
+        log['action'] = 'Failed information request'
+        log['info'] = dict()
+        log['timeStamp'] = time.time()
+        interactions.insert_one(log)
         return json.dumps(retVal)
 
     #assuming that the player has joined a team
@@ -242,13 +247,31 @@ def retData():
     retVal['teamName'] = teamName
     retVal['nextGame'] = nextGame
     retVal['password'] = password
+    r = retVal
+    
 
     if player['paid'] == 'paid':
+        log = dict()
+        log['action'] = 'Information properly requested'
+        log['info'] = r
+        log['timeStamp'] = time.time()
+        interactions.insert_one(log)
         retVal['regStatus'] = 2
         return json.dumps(retVal)
     else:
+        log = dict()
+        log['action'] = 'Information properly requested'
+        log['info'] = r
+        log['timeStamp'] = time.time()
+        interactions.insert_one(log)
         retVal['regStatus'] = 1
         return json.dumps(retVal)
+
+    log = dict()
+    log['action'] = 'Information properly requested'
+    log['info'] = r
+    log['timeStamp'] = time.time()
+    interactions.insert_one(log)
 
     return json.dumps(retVal)
 
@@ -257,6 +280,13 @@ def getUsers():
     retVal = dict()
     for user in users.find():
         retVal[user['email']] = user['password']
+
+    log = dict()
+    log['action'] = 'Users properly requested'
+    log['info'] = dict()
+    log['timeStamp'] = time.time()
+    interactions.insert_one(log)
+
     return json.dumps(retVal)
 
 if(__name__) == "__main__":

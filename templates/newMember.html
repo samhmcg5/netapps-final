@@ -7,33 +7,33 @@
         <link href="/static/bootstrap.min.css" rel="stylesheet">
         
         <!-- Bootstrap core JS -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
+        <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
         
         <!-- Custom styles for this template -->  
-        <link href="/static/signin.css" rel="stylesheet">
-        <link href="/static/cover.css" rel="stylesheet">
-        <link href="/static/img.css" rel="stylesheet">
+        <!-- <link href="/static/signin.css" rel="stylesheet"> -->
+        <!-- <link href="/static/cover.css" rel="stylesheet"> -->
+        <!-- <link href="/static/img.css" rel="stylesheet"> -->
     </head>
     <body>
-        <form action='/handleNewMemberData' method='post' enctype="multipart/form-data" class="form-signin">
-            <!-- Name: <input type='text' name='playerName'><br> -->
-            <!-- PID Number: <input type='text' name='pidNumber'><br> -->
-            <!-- Email address: <input type='text' name='email'><br> -->
-            <!-- Login password: <input type='text' name='password'><br> -->
+        <form action='/handleNewMemberData' method='post' enctype="multipart/form-data">
+            Name: <input type='text' name='playerName'><br>
+            PID Number: <input type='text' name='pidNumber'><br>
+            Email address: <input type='text' name='email'><br>
+            Login password: <input type='text' name='password'><br>
 
-            <input type="text" name="playerName" id="inputName" class="form-control" placeholder="Player Name" required autofocus>
+            <!-- <input type="text" name="playerName" id="inputName" class="form-control" placeholder="Player Name" required autofocus> -->
 
-            <input type="text" name="pidNumber" id="inputPID" class="form-control" placeholder="ID Number" required autofocus>
+            <!-- <input type="text" name="pidNumber" id="inputPID" class="form-control" placeholder="ID Number" required autofocus> -->
 
-            <input type="email" name="email" id="inputEmail" class="form-control" placeholder="VT Email" required autofocus>
+            <!-- <input type="email" name="email" id="inputEmail" class="form-control" placeholder="VT Email" required autofocus> -->
 
-            <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
+            <!-- <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required> -->
 
-            <!-- Payment Option: <select name='payment'>
+            Payment Option: <select name='payment'>
                 <option value='payNow'>Pay Now</option>
                 <option value='payLater'>Pay Later</option>
-            </select><br> -->
+            </select><br>
             Upload a picture of your face: <input type='file' name='myPhoto' required autofocus><br>
             <input class='btn btn-primary' type='submit' value='Submit'>
         </form>

@@ -14,7 +14,7 @@ teams = db.teams
 users = db.users
 interactions = db.interactions
 
-app = flask.Flask("mydomain")
+app = flask.Flask(__name__)
 
 IP = check_output(['hostname', '-I']).decode()
 IP = IP.split(' ')[0]
@@ -83,7 +83,7 @@ def handleNewTeamData():
     data['teamName'] = teamName
     data['teamCaptain'] = teamCaptain
     data['sport'] = sport
-    data['schedule'] = [{'opponent': 'whalers101', 'location': 'birds asshole', 'time': time.strp('Mon Dec 18 6:30:00 2017')}]
+    data['schedule'] = dict()
 
     if teamName == '' or teamCaptain == '':
         log = dict()
@@ -124,16 +124,14 @@ def handleNewMemberData():
     password = flask.request.form['password']
     f = flask.request.files['myPhoto']
 
-    try:
-        filename = 'face.jpg'
-        f.save(os.path.join('./face.jpg'))
-        load = face_recognition.load_image_file('face.jpg')
-        encoding = face_recognition.face_encodings(load)[0]
-        os.remove('./face.jpg')
-        encoding = encoding.tolist()
-    except:
-        return "Error - could not detect face in the photo"
-    
+    filename = 'face.jpg'
+    f.save(os.path.join('./face.jpg'))
+    load = face_recognition.load_image_file('face.jpg')
+    encoding = face_recognition.face_encodings(load)[0]
+    os.remove('./face.jpg')
+
+    encoding = encoding.tolist()
+    print('here')
     data = dict()
     data['playerName'] = playerName
     data['pidNumber'] = pidNumber
@@ -143,12 +141,13 @@ def handleNewMemberData():
         data['paid'] = 'paid'
     elif paid == 'payLater':
         data['paid'] = 'notPaid'
+    #data['encoding'] = encoding
     data['password'] = password
 
     if password == '' or playerName == '' or pidNumber == '' or email == '' or f.filename == '':
         log = dict()
         log['action'] = 'New member registration failed'
-        log['info'] = r
+        log['info'] = data
         log['timeStamp'] = time.time()
         interactions.insert_one(log)
         return "Error - fill in all data forms"
@@ -156,20 +155,19 @@ def handleNewMemberData():
     if '.jpg' not in f.filename and '.jpeg' not in f.filename:
         log = dict()
         log['action'] = 'New member registration failed'
-        log['info'] = r
+        log['info'] = data
         log['timeStamp'] = time.time()
         interactions.insert_one(log)
         return 'Error - must upload a file in .jpg or .jpeg format'
 
-    
+    #users.insert_one(data)
     log = dict()
     log['action'] = 'New member registered'
-    log['info'] = r
+    log['info'] = data
     log['timeStamp'] = time.time()
     interactions.insert_one(log)
-
     data['encoding'] = encoding
-    user.insert_one(data)
+    users.insert_one(data)
     return flask.redirect('http://' + IP + ':5000/')
 
 @app.route('/handleJoinTeam', methods=['POST'])
@@ -238,27 +236,26 @@ def retData():
     sport = ''
     nextGame = ''
 
-
-    teamName = player['teams'][0][0]
-    sport = player['teams'][0][1]
-    team = teams.find_one({'teamName': teamName})
-    if team == None:
-        nextGame = {'opponent': 'fakenews', 'location':'the field', 'time': time.strptime('Mon Dec 18 6:30:00 2017')}
-    else:
+    try:
+        teamName = player['teams'][0][0]
+        sport = player['teams'][0][1]
+        team = teams.find_one({'teamName': teamName})
         nextGame = team['schedule'][0]
-
-
+    except:
+        nextGame = {'opponent':'The NSA', 'location': 'Field 4', 'time': time.strptime('Mon Dec 18 6:30:00 2017')}
     #retVal['encoding'] = encoding
     retVal['playerName'] = playerName
     retVal['sport'] = sport
     retVal['teamName'] = teamName
     retVal['nextGame'] = nextGame
-    retVal['password'] = password    
+    retVal['password'] = password
+    r = retVal
+    
 
     if player['paid'] == 'paid':
         log = dict()
         log['action'] = 'Information properly requested'
-        log['info'] = retVal
+        log['info'] = r
         log['timeStamp'] = time.time()
         interactions.insert_one(log)
         retVal['encoding'] = encoding
@@ -267,7 +264,7 @@ def retData():
     else:
         log = dict()
         log['action'] = 'Information properly requested'
-        log['info'] = retVal
+        log['info'] = r
         log['timeStamp'] = time.time()
         interactions.insert_one(log)
         retVal['encoding'] = encoding
@@ -276,7 +273,7 @@ def retData():
 
     log = dict()
     log['action'] = 'Information properly requested'
-    log['info'] = retVal
+    log['info'] = r
     log['timeStamp'] = time.time()
     interactions.insert_one(log)
 
@@ -297,5 +294,4 @@ def getUsers():
     return json.dumps(retVal)
 
 if(__name__) == "__main__":
-    #app.config['SERVER_NAME'] = 'mydomain.com:5000'
     app.run(host=IP, debug=True)

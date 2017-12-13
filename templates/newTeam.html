@@ -3,26 +3,12 @@
     <head>
         <meta charset="utf-8" />
         <title>Hokie Sport - New Intramural Team</title>
-        <!-- Bootstrap core CSS -->
-        <link href="/static/bootstrap.min.css" rel="stylesheet">
-        
-        <!-- Bootstrap core JS -->
-        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
-        <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
-        
-        <!-- Custom styles for this template -->  
-        <!-- <link href="/static/signin.css" rel="stylesheet"> -->
-        <!-- <link href="/static/cover.css" rel="stylesheet"> -->
-        <!-- <link href="/static/img.css" rel="stylesheet"> -->
+        <link href="/static/bootstrap.min.css" rel='stylesheet'>
     </head>
     <body>
         <form action='/handleNewTeamData' method='post'>
             Team Name: <input type='text' name='teamName'><br>
             Team Captain: <input type='text' name='teamCaptain'><br>
-
-            <!-- <input type="text" name="teamName" id="teamCaptain" class="form-control" placeholder="Team Name" required autofocus> -->
-            <!-- <input type="text" name="teamCaptain" id="teamCaptain" class="form-control" placeholder="Team Captain" required autofocus> -->
-
             Sport: <select name='sport'>
                 {% for i in sports %}
                     <option value='{{ i }}'>{{ i }}</option>
@@ -33,7 +19,7 @@
                 <option value='advanced'>Advanced</option>
             </select><br> -->
             <input class='btn btn-primary' type='submit' value='Submit'>
-        </form>
+        </form><br>
         <a href='/'>
             <button class='btn btn-primary'>Home</button>
         </a>

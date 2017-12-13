@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     
     <title>IM Sports Sign-In Portal</title>
 
@@ -29,15 +32,24 @@
 
         <div class="cover-container">
           <h1 class="form-signin-heading">IM Sports Sign-In Portal</h1>
+          
           <br>
           <div class="row">
             <div class="col-sm-12 test">
               {% if filename %}
                 <img src="{{filename}}" class="img-responsive"></img>
-              {% else %}
-                <p>No Picture Taken</p>
               {% endif %}
             </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4">
+              {% if match %}
+              <p>{{match}}</p>
+              {% endif %}
+            </div>
+            <div class="col-sm-4"></div>
           </div>
           <br>
           <div class="container">

@@ -131,6 +131,12 @@ def send_photo():
     pygame.image.save(frame, "image.jpg")
     return send_file('image.jpg')
 
+@app.route('/blue')
+def go_blue():
+    global state
+    state = "auth"
+    return "blue"
+
 @app.route('/deny')
 def deny_access():
     # Set GPIO to Red
